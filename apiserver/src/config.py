@@ -9,6 +9,7 @@ class ConfigClass(BaseSettings):
     AMQP_CONNECTION_STRING: str
     AMQP_EXCHANGE_NAME: str
     AMQP_EXCHANGE_TYPE: str
+    AMQP_ROUTE_KEY: str = Field(default="")
 
     class Config:
         case_sensitive = True

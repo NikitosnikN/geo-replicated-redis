@@ -1,0 +1,20 @@
+[tool.poetry]
+name = "apiserver"
+version = "0.1.0"
+description = ""
+authors = ["Nikita <nikitosnikn@yandex.ru>"]
+readme = "README.md"
+license = "MIT"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+fastapi = "^0.95.1"
+pydantic = "^1.10.7"
+kombu = "^5.2.4"
+uvicorn = "^0.21.1"
+python-dotenv = "^1.0.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

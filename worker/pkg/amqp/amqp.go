@@ -17,7 +17,7 @@ type Consumer struct {
 }
 
 func NewConsumer(connectionString string, exchangeName string, exchangeType string, queueName string, queueRouteKey string) (*Consumer, error) {
-	c := &Consumer{
+	var c = &Consumer{
 		Conn:    nil,
 		Channel: nil,
 		Done:    make(chan error),

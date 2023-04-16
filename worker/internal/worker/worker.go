@@ -1,37 +1,29 @@
 package worker
 
 import (
-	"fmt"
-	amqp091 "github.com/rabbitmq/amqp091-go"
 	"worker/internal/config"
+	"worker/internal/providers"
 	"worker/pkg/amqp"
+	"worker/pkg/redis"
 
 	"log"
 )
-
-func handler(deliveries <-chan amqp091.Delivery, done chan error) {
-	cleanup := func() {
-		log.Printf("handle: deliveries channel closed")
-		done <- nil
-	}
-
-	defer cleanup()
-
-	for d := range deliveries {
-		fmt.Printf(
-			"got new message: [%v] %q\n",
-			d.DeliveryTag,
-			d.Body,
-		)
-		d.Ack(false)
-	}
-}
 
 func Consume(cfg config.Config) {
 	consumer, err := amqp.NewConsumer(cfg.AMQPConnectionString, cfg.AMQPExchangeName, cfg.AMQPExchangeType, cfg.AMQPQueueName, cfg.AMQPQueueRouteKey)
 
 	if err != nil {
 		log.Fatal("failed to create consumer", err)
+	}
+
+	redisClient, err := redis.NewClient(cfg.RedisConnectionString)
+
+	if err != nil {
+		log.Fatal("failed to create redis provider", err)
+	}
+
+	redisProvider := &providers.RedisProvider{
+		Client: redisClient,
 	}
 
 	deliveries, err := consumer.Channel.Consume(
@@ -49,7 +41,7 @@ func Consume(cfg config.Config) {
 	}
 
 	consumer.SetupCloseHandler()
-	go handler(deliveries, consumer.Done)
+	go handler(redisProvider, deliveries, consumer.Done)
 
 	log.Printf("running until Consumer is done")
 	<-consumer.Done
